@@ -1,0 +1,6 @@
+.DS_Store
+npm-debug.log
+node_modules
+.aws-config.json
+elasticsearch-watcher
+junit-*.xml

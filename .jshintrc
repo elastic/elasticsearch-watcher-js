@@ -1,0 +1,13 @@
+{
+  "unused": true,
+  "node": true,
+  "eqnull": true,
+  "eqeqeq": true,
+  "immed": true,
+  "expr": true,
+  "latedef": "nofunc",
+  "noarg": true,
+  "undef": true,
+  "-W084": true,
+  "maxerr": 10
+}
