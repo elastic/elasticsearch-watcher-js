@@ -1,8 +1,6 @@
-
-var _ = require('../../../src/lib/utils');
+var _ = require('lodash');
 var fs = require('fs');
-var path = require('path');
-
+var join = require('path').join;
 
 /**
  * we want strings in code to use single-quotes, so this will JSON encode vars, but then
@@ -26,26 +24,28 @@ function stringify(thing, pretty) {
     .replace(/^( +)(default):/gm, '$1\'$2\':');
 }
 
-/**
- * We'll collect the templates here
- * @type {Object}
- */
-var templates = {};
+function repeat(str, count) {
+  return (new Array(count + 1)).join(str);
+}
+
+function ucfirst(str) {
+  return str.charAt(0).toUpperCase() + str.substr(1).toLowerCase();
+}
 
 /**
  * These keys will be available as local variables to each template
  * @type {Object}
  */
-var templateGlobals = {
+module.exports = {
 
   stringify: stringify,
 
   _: _,
 
   indent: function (block, spaces) {
-    var indent = _.repeat(' ', spaces);
+    var indent = repeat(' ', spaces);
     return block.split('\n').map(function (line) {
-      return indent + line;
+      return !line.trim() ? '' : indent + line;
     }).join('\n');
   },
 
@@ -55,7 +55,7 @@ var templateGlobals = {
 
   description: function (action) {
     try {
-      return fs.readFileSync(path.join(__dirname, '../../../docs/_descriptions/' + action + '.asciidoc'));
+      return fs.readFileSync(join(__dirname, '../../../docs/_descriptions/' + action + '.asciidoc'));
     } catch (e) {
       if (~e.message.indexOf('ENOENT')) {
         return '// no description';
@@ -67,7 +67,7 @@ var templateGlobals = {
 
   examples: function (action) {
     try {
-      return fs.readFileSync(path.join(__dirname, '../../../docs/_examples/' + action + '.asciidoc'));
+      return fs.readFileSync(join(__dirname, '../../../docs/_examples/' + action + '.asciidoc'));
     } catch (e) {
       if (~e.message.indexOf('ENOENT')) {
         return '// no examples';
@@ -88,7 +88,7 @@ var templateGlobals = {
     case 'list':
       return 'String, String[], Boolean';
     default:
-      return _.ucfirst(type);
+      return ucfirst(type);
     }
   },
 
@@ -98,26 +98,5 @@ var templateGlobals = {
     } else {
       return name;
     }
-  },
-
-  partials: templates
-};
-
-fs.readdirSync(path.resolve(__dirname)).forEach(function (filename) {
-  var name = filename.replace(/\..+$/, '');
-  if (name !== 'index') {
-    templates[name] = _.template(
-      fs.readFileSync(path.resolve(__dirname, filename), 'utf8'),
-      {
-        imports: templateGlobals
-      }
-    );
   }
-});
-templates.text = templates.string;
-
-module.exports = {
-  apiFile: templates.api_file,
-  apiMethodList: templates.api_method_list,
-  apiMethods: templates.api_methods
 };

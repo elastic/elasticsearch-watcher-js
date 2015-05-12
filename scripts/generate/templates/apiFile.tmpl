@@ -1,0 +1,15 @@
+module.exports = function addWatcherApi(Client, config, components) {
+  var ClientAction = components.ClientAction;
+
+  var watcher = Client.prototype.watcher = function WatcherNS(transport) {
+    this.transport = transport;
+  };
+
+  Client.prototype._namespaces.push('watcher');
+
+<%
+  _.each(methods, function (method) {
+    print(indent(apiMethodTmpl(method), 2) + '\n');
+  });
+%>
+};

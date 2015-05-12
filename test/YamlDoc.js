@@ -8,17 +8,13 @@
 module.exports = YamlDoc;
 
 var _ = require('lodash');
+var Promise = require('bluebird');
 var expect = require('expect.js');
-var clientManager = require('./client_manager');
+var camelCase = require('camelcase');
+var clientManager = require('./client');
 var inspect = require('util').inspect;
 
 var implementedFeatures = ['gtelte', 'regex', 'benchmark'];
-
-/**
- * The version that ES is running, in comparable string form XXX-XXX-XXX, fetched when needed
- * @type {String}
- */
-var ES_VERSION = null;
 
 // core expression for finding a version
 var versionExp = '((?:\\d+\\.){0,2}\\d+)(?:\\.\\w+)?|';
@@ -41,24 +37,19 @@ var versionRE = new RegExp('^(?:' + versionExp + ')$');
  */
 var versionRangeRE = new RegExp('^(?:' + versionExp + ')\\s*\\-\\s*(?:' + versionExp + ')$');
 
-function camelCase(str) {
-  return str.split('_').map(function (s, i) {
-    return i === 0 ? s.toLowerCase() : s[0].toUpperCase() + s.substr(1).toLowerCase();
-  });
-}
-
 /**
  * Fetches the client.info, and parses out the version number to a comparable string
  * @param done {Function} - callback
  */
-function getVersionFromES(done) {
-  clientManager.get().info({}, function (err, resp) {
-    if (err) {
-      throw new Error('unable to get info about ES');
-    }
-
-    ES_VERSION = resp.version.number;
-    done();
+function getVersionFromES() {
+  return clientManager
+  .get()
+  .info({})
+  .then(function (resp) {
+    return resp.version.number;
+  })
+  .catch(function () {
+    throw new Error('unable to get info about ES');
   });
 }
 
@@ -93,19 +84,15 @@ function versionToComparableString(version, def) {
  * @param  {String} rangeString - a string representing two version numbers seperated by a "-"
  * @return {Boolean} - is the current version within the range (inclusive)
  */
-function rangeMatchesCurrentVersion(rangeString, done) {
+function rangeMatchesCurrentVersion(rangeString) {
   if (rangeString === 'all') {
-    return done(true);
+    return Promise.resolve(true);
   }
 
-  if (!ES_VERSION) {
-    getVersionFromES(function () {
-      rangeMatchesCurrentVersion(rangeString, done);
-    });
-    return;
-  }
-
-  done(YamlDoc.compareRangeToVersion(rangeString, ES_VERSION));
+  return getVersionFromES()
+  .then(function (esVersion) {
+    return YamlDoc.compareRangeToVersion(rangeString, esVersion);
+  });
 }
 
 
@@ -118,7 +105,7 @@ function YamlDoc(doc, file) {
   self._last_requests_response = null;
 
   // setup the actions, creating a bound and testable method for each
-  self._actions = _.map(self.q(doc[self.description]), function (action) {
+  self._actions = _.map(self.flattenTestActions(doc[self.description]), function (action) {
     // get the method that will do the action
     var method = self['do_' + action.name];
 
@@ -131,34 +118,11 @@ function YamlDoc(doc, file) {
       action.name += '(' + action.args + ')';
     }
 
-    // wrap in a check for skipping
-    action.bound = _.bind(method, self, action.args);
-
     // create a function that can be passed to mocha or async
-    action.testable = function (_cb) {
-      function done(err) {
-        process.nextTick(function () {
-          if (err) {
-            err.message += ' in ' + action.name;
-          }
-          _cb(err);
-        });
-      }
-
-      if (self.skipping || self.file.skipping) {
-        return done();
-      }
-      if (method.length > 1) {
-        action.bound(done);
-      } else {
-        try {
-          action.bound();
-          process.nextTick(done);
-        } catch (err) {
-          done(err);
-        }
-      }
-    };
+    action.testable = Promise.method(function () {
+      if (self.skipping || self.file.skipping) return;
+      return method.call(self, action.args);
+    });
 
     return action;
   });
@@ -286,23 +250,22 @@ YamlDoc.prototype = {
    * @param args
    * @param done
    */
-  do_skip: function (args, done) {
+  do_skip: function (args) {
+    var self = this;
+
     if (args.version) {
-      return rangeMatchesCurrentVersion(args.version, _.bind(function (match) {
+      return rangeMatchesCurrentVersion(args.version)
+      .then(function (match) {
         if (match) {
-          if (this.description === 'setup') {
-            this.file.skipping = true;
-            // console.log('skipping this file' + (args.reason ? ' because ' + args.reason : ''));
+          if (self.description === 'setup') {
+            self.file.skipping = true;
+            // console.log('skipping self file' + (args.reason ? ' because ' + args.reason : ''));
           } else {
-            this.skipping = true;
-            // console.log('skipping the rest of this doc' + (args.reason ? ' because ' + args.reason : ''));
+            self.skipping = true;
+            // console.log('skipping the rest of self doc' + (args.reason ? ' because ' + args.reason : ''));
           }
-        } else {
-          this.skipping = false;
-          this.file.skipping = false;
         }
-        done();
-      }, this));
+      });
     }
 
     if (args.features) {
@@ -318,7 +281,6 @@ YamlDoc.prototype = {
           console.log('skipping the rest of this doc because ' + notImplemented.join(' & ') + ' are not implemented');
         }
       }
-      return done();
     }
   },
 
@@ -329,7 +291,7 @@ YamlDoc.prototype = {
    * @param  {Function} done [description]
    * @return {[type]}        [description]
    */
-  do_do: function (args, done) {
+  do_do: function (args) {
     var catcher;
 
     // resolve the catch arg to a value used for matching once the request is complete
@@ -365,6 +327,7 @@ YamlDoc.prototype = {
     var action = _.keys(args).pop();
     var clientActionName = _.map(action.split('.'), camelCase).join('.');
     var clientAction = this.get(clientActionName, client);
+
     var params = _.transform(args[action], function (params, val, name) {
       var camelName = camelCase(name);
 
@@ -408,48 +371,53 @@ YamlDoc.prototype = {
       params[paramName] = val;
     }, {}, this);
 
-
     expect(clientAction || clientActionName).to.be.a('function');
 
-    if (_.isNumeric(catcher)) {
+    // convert error code catchers into ignore params
+    if (String(catcher).match(/^[0-9]+(\.[0-9]+)$/)) {
       params.ignore = _.union(params.ignore || [], [catcher]);
       catcher = null;
     }
 
-    var timeoutId;
-    var cb =  _.bind(function (error, body) {
-      this._last_requests_response = body;
-      clearTimeout(timeoutId);
+    return new Promise(function (resolve, reject) {
+      var self = this;
+      var req = clientAction.call(client, params);
 
-      if (error) {
-        if (catcher) {
-          if (catcher instanceof RegExp) {
-            // error message should match the regexp
-            expect(error.message).to.match(catcher);
-            error = null;
-          } else if (typeof catcher === 'function') {
-            // error should be an instance of
-            expect(error).to.be.a(catcher);
-            error = null;
-          } else {
-            return done(new Error('Invalid catcher ' + catcher));
-          }
-        } else {
-          return done(error);
+      var timeoutId = setTimeout(function () {
+        // request timed out, so we will skip the rest of the tests and continue
+        req.abort();
+        self.skipping = true;
+        self._last_requests_response = {};
+        reject(new Error('Test Timeout'));
+      }, 20000);
+
+      req
+      .finally(function () {
+        clearTimeout(timeoutId);
+      })
+      .then(function (resp) {
+        self._last_requests_response = resp;
+      })
+      .catch(function (err) {
+        if (catcher instanceof RegExp) {
+          // error message should match the regexp
+          expect(err.message).to.match(catcher);
+          return;
         }
-      }
 
-      done(error);
-    }, this);
+        if (typeof catcher === 'function') {
+          // error should be an instance of
+          expect(err).to.be.a(catcher);
+          return;
+        }
 
-    var req = clientAction.call(client, params, cb);
-    timeoutId = setTimeout(function () {
-      // request timed out, so we will skip the rest of the tests and continue
-      req.abort();
-      this.skipping = true;
-      this._last_requests_response = {};
-      done();
-    }.bind(this), 20000);
+        if (catcher) throw new Error('Invalid catcher ' + catcher);
+
+        throw err;
+      })
+      .then(resolve, reject);
+
+    });
   },
 
   /**

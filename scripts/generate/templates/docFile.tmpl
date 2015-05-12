@@ -1,0 +1,15 @@
+[[api-reference-watcher]]
+== Elasticsearch.js Watcher API
+
+[[js-api-method-index-watcher]]
+<%
+
+_.each(methods, function (method) {
+  print('* <<' + method.id + ',' + method.name + '>>\n');
+})
+
+_.each(methods, function (method) {
+  print(docMethodTmpl(method) + '\n');
+});
+
+%>

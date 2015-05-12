@@ -1,0 +1,21 @@
+[[<%= id %>]]
+=== `<%= name %>`
+
+[source,js]
+--------
+client.watcher.<%= name %>([params, [callback]])
+--------
+
+<%= description(name) %>
+
+The default method is `<%= defaultHttpMethod || 'GET' %>` and the usual <<api-conventions,params and return values>> apply. See <%= docUrl %>[the elasticsearch docs] for more about this method.
+
+<%= examples(name) %>
+
+<%
+if (params) {
+  print(docParamsTmpl({ params: params }));
+}
+%>
+
+link:#[back to top]

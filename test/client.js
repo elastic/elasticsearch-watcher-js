@@ -1,19 +1,12 @@
-var BROWSER = process.env.browser;
 var VERBOSE = process.env.VERBOSE;
 var JENKINS = !!process.env.JENKINS_HOME;
 
-if (BROWSER) {
-  /* jshint browser: true */
-  var es = window.elasticsearch;
-} else {
-  var es = require('../../../src/elasticsearch');
-}
-
+var es = require('elasticsearch');
 var _ = require('lodash');
-var path = require('path');
+var join = require('path').join;
 var fs = require('fs');
 var Promise = require('bluebird');
-var fromRoot = _.bindKey(path, 'join', require('find-root')(__dirname));
+var logFile = join(__dirname, '..', 'elasticsearch-tracer.log');
 
 // current client
 var client = null;
@@ -26,8 +19,7 @@ module.exports = {
 
     return (function ping() {
       return client.info({
-        maxRetries: 0,
-        requestTimeout: 100
+        maxRetries: 0
       })
       .then(
         function (resp) {
@@ -41,7 +33,7 @@ module.exports = {
         },
         function (err) {
           if (err && --attemptsRemaining) {
-            return Promise.delay(ping, timeout);
+            return Promise.delay(timeout).then(ping);
           }
 
           throw new Error('unable to establish contact with ES at ' + JSON.stringify({
@@ -60,9 +52,7 @@ module.exports = {
       if (_.has(options, 'logConfig')) {
         logConfig = options.logConfig;
       } else {
-        if (BROWSER) {
-          logConfig.type = 'console';
-        } else if (JENKINS || !VERBOSE) {
+        if (JENKINS || !VERBOSE) {
           logConfig.type = 'stdio';
         } else {
           logConfig.type = 'tracer';
@@ -73,7 +63,7 @@ module.exports = {
 
       if (logConfig && logConfig.type === 'tracer') {
         try {
-          fs.unlinkSync(fromRoot('elasticsearch-tracer.log'));
+          fs.unlinkSync(logFile);
         } catch (e) {}
       }
 
@@ -84,9 +74,11 @@ module.exports = {
         hosts: [
           {
             host: 'localhost',
-            port: port
+            port: 9200
           }
         ],
+        plugins: [ require('../src/watcher') ],
+        pingTimeout: 5000,
         log: logConfig
       });
 

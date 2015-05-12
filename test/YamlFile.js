@@ -7,9 +7,9 @@
 module.exports = YamlFile;
 
 var Promise = require('bluebird');
-var YamlDoc = require('./yaml_doc');
-var clientManager = require('./client_manager');
-var _ = require('../../../src/lib/utils');
+var YamlDoc = require('./YamlDoc');
+var client = require('./client');
+var _ = require('lodash');
 
 function YamlFile(filename, docs) {
   var file = this;
@@ -21,7 +21,7 @@ function YamlFile(filename, docs) {
     file.docs = _.map(docs, function (doc) {
       doc =  new YamlDoc(doc, file);
       if (doc.description === 'setup') {
-        beforeEach(/* doc */function () {
+        beforeEach(function () {
           return Promise.resolve(_.pluck(doc._actions, 'testable')).each(function (action) {
             return Promise.try(action);
           });
@@ -36,7 +36,7 @@ function YamlFile(filename, docs) {
     });
 
     afterEach(/* doc */function () {
-      return clientManager.get().clearEs();
+      return client.get().clearEs();
     });
   });
 
