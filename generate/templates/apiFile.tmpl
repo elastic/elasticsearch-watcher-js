@@ -1,12 +1,22 @@
-module.exports = function addWatcherApi(Client, config, components) {
-  var ca = components.clientAction.factory;
+(function (root, factory) {
+  if (typeof define === 'function' && define.amd) {
+    define([], factory);
+  } else if (typeof exports === 'object') {
+    module.exports = factory();
+  } else {
+    root.returnExports = factory();
+  }
+}(this, function () {
+  return function addWatcherApi(Client, config, components) {
+    var ca = components.clientAction.factory;
 
-  Client.prototype.watcher = components.clientAction.namespaceFactory();
-  var watcher = Client.prototype.watcher.prototype;
+    Client.prototype.watcher = components.clientAction.namespaceFactory();
+    var watcher = Client.prototype.watcher.prototype;
 
 <%
-  _.each(methods, function (method) {
-    print(indent(apiMethodTmpl(method), 2) + '\n');
-  });
+    _.each(methods, function (method, i) {
+      print((i > 0 ? '\n' : '') + indent(apiMethodTmpl(method), 4));
+    });
 %>
-};
+  };
+}));

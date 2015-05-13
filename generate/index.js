@@ -9,7 +9,7 @@ var imports = _.clone(require('./templateHelpers'));
 var rootDir = join(__dirname, '..');
 var apiDir = join(rootDir, 'elasticsearch-watcher', 'rest-api-spec', 'api');
 var tmplDir = join(rootDir, 'generate', 'templates');
-var apiFile = join(rootDir, 'src', 'watcher.js');
+var apiFile = join(rootDir, 'elasticsearch-watcher.js');
 var docFile = join(rootDir, 'docs', 'api.asciidoc');
 
 var read = function (filename) { return fs.readFileSync(filename, 'utf8'); };
