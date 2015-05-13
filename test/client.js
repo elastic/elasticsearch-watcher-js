@@ -49,9 +49,9 @@ module.exports = {
             port: 9200
           }
         ],
-        plugins: [ require('../src/watcher') ],
+        plugins: [ require('../') ],
         pingTimeout: 5000,
-        log: 'trace'
+        log: false
       });
 
       client.clearEs = function () {

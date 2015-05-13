@@ -1,0 +1,19 @@
+{
+  "defaults": {
+    "plugins": [
+      "elasticsearch/license/latest",
+      "elasticsearch/watcher/latest"
+    ]
+  },
+  "clusters": {
+    "test": {
+      "branch": "1.x",
+      "config": {
+        "cluster.name": "esjs-watcher-test-runner",
+        "node.name": "esjs-watcher-test-runner",
+        "script.inline": true,
+        "discovery.zen.ping.multicast.enabled": false
+      }
+    }
+  }
+}
