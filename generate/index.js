@@ -6,9 +6,9 @@ var relative = require('path').relative;
 var glob = require('glob');
 var imports = _.clone(require('./templateHelpers'));
 
-var rootDir = join(__dirname, '..', '..');
+var rootDir = join(__dirname, '..');
 var apiDir = join(rootDir, 'elasticsearch-watcher', 'rest-api-spec', 'api');
-var tmplDir = join(rootDir, 'scripts', 'generate', 'templates');
+var tmplDir = join(rootDir, 'generate', 'templates');
 var apiFile = join(rootDir, 'src', 'watcher.js');
 var docFile = join(rootDir, 'docs', 'api.asciidoc');
 

@@ -23,7 +23,7 @@
     "mocha": "^2.2.4"
   },
   "scripts": {
-    "generate": "node scripts/generate",
+    "generate": "node generate",
     "test": "mocha test/read.js"
   }
 }
