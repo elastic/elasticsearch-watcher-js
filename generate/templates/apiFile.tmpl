@@ -4,7 +4,7 @@
   } else if (typeof exports === 'object') {
     module.exports = factory();
   } else {
-    root.returnExports = factory();
+    root.ElasticsearchWatcher = factory();
   }
 }(this, function () {
   return function addWatcherApi(Client, config, components) {

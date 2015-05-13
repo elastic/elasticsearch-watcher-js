@@ -4,9 +4,9 @@
     "company": "Elasticsearch BV"
   },
   "name": "elasticsearch-watcher",
-  "description": "Elasticsearch.js extension for the Watcher API",
+  "description": "Watcher API plugin for the JavaScript elasticsearch client",
   "main": "elasticsearch-watcher.js",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "license": "Apache 2.0",
   "dependencies": {},
   "engines": {
