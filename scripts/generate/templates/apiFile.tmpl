@@ -1,11 +1,8 @@
 module.exports = function addWatcherApi(Client, config, components) {
-  var ClientAction = components.ClientAction;
+  var ca = components.clientAction.factory;
 
-  var watcher = Client.prototype.watcher = function WatcherNS(transport) {
-    this.transport = transport;
-  };
-
-  Client.prototype._namespaces.push('watcher');
+  Client.prototype.watcher = components.clientAction.namespaceFactory();
+  var watcher = Client.prototype.watcher.prototype;
 
 <%
   _.each(methods, function (method) {

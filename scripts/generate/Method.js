@@ -3,11 +3,12 @@ var camelCase = require('camelcase');
 
 var urlParamRE = /\{(\w+)\}/g;
 
-function rekeyWithCamelCase(params) {
-  return _.transform(params, function (newParams, param, oldKey) {
+function ParamList(vals) {
+  var self = this;
+  _.forOwn(vals, function (param, oldKey) {
     var name = camelCase(oldKey);
     if (name !== oldKey) param.name = oldKey;
-    newParams[name] = param;
+    self[name] = _.pick(param, 'type', 'default', 'options', 'required', 'name');
   });
 }
 
@@ -17,18 +18,10 @@ function Method(name, props) {
   this.docUrl = props.documentation;
   this.httpMethods = _.invoke(props.methods, 'toUpperCase');
 
-  var urlParams = rekeyWithCamelCase(props.url.params);
-  var urlParts = rekeyWithCamelCase(props.url.parts);
-
   this.body = props.body || null;
-
-  this.params = _({})
-  .assign(urlParams)
-  .assign(urlParts)
-  .mapValues(function (param) {
-    return _.pick(param, 'type', 'default', 'options', 'required', 'name');
-  })
-  .value();
+  this.params = new ParamList(props.url.params);
+  this.urlParts = new ParamList(props.url.parts);
+  this.allParams = _.merge({}, this.params, this.urlParts);
 
   if (this.body && this.body.required) {
     this.needBody = true;
@@ -94,7 +87,7 @@ function parseUrl(urlParts, url) {
     return '<%=' + name + '%>';
   });
 
-  return _.omit({
+  return _.pick({
     fmt: fmt,
     opt: _.size(opt) && opt,
     req: _.size(req) && req,

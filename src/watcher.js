@@ -1,11 +1,8 @@
 module.exports = function addWatcherApi(Client, config, components) {
-  var ClientAction = components.ClientAction;
+  var ca = components.clientAction.factory;
 
-  var watcher = Client.prototype.watcher = function WatcherNS(transport) {
-    this.transport = transport;
-  };
-
-  Client.prototype._namespaces.push('watcher');
+  Client.prototype.watcher = components.clientAction.namespaceFactory();
+  var watcher = Client.prototype.watcher.prototype;
 
   /**
    * Perform a [watcher.ackWatch](http://www.elastic.co/guide/en/watcher/current/appendix-api-ack-watch.html) request
@@ -14,19 +11,20 @@ module.exports = function addWatcherApi(Client, config, components) {
    * @param {Duration} params.masterTimeout
    * @param {String} params.id
    */
-  watcher.ackWatch = new ClientAction({
+  watcher.ackWatch = ca({
     params: {
       masterTimeout: {
         type: 'duration',
         name: 'master_timeout'
-      },
-      id: {
-        type: 'string',
-        required: true
       }
     },
     url: {
-      opt: 0
+      fmt: '/_watcher/watch/<%=id%>/_ack',
+      req: {
+        id: {
+          type: 'string'
+        }
+      }
     },
     method: 'POST'
   });
@@ -39,7 +37,7 @@ module.exports = function addWatcherApi(Client, config, components) {
    * @param {Boolean} params.force
    * @param {String} params.id
    */
-  watcher.deleteWatch = new ClientAction({
+  watcher.deleteWatch = ca({
     params: {
       masterTimeout: {
         type: 'duration',
@@ -47,14 +45,15 @@ module.exports = function addWatcherApi(Client, config, components) {
       },
       force: {
         type: 'boolean'
-      },
-      id: {
-        type: 'string',
-        required: true
       }
     },
     url: {
-      opt: 0
+      fmt: '/_watcher/watch/<%=id%>',
+      req: {
+        id: {
+          type: 'string'
+        }
+      }
     },
     method: 'DELETE'
   });
@@ -65,15 +64,15 @@ module.exports = function addWatcherApi(Client, config, components) {
    * @param {Object} params - An object with parameters used to carry out this action
    * @param {String} params.id
    */
-  watcher.executeWatch = new ClientAction({
-    params: {
-      id: {
-        type: 'string',
-        required: true
-      }
-    },
+  watcher.executeWatch = ca({
+    params: {},
     url: {
-      opt: 0
+      fmt: '/_watcher/watch/<%=id%>/_execute',
+      req: {
+        id: {
+          type: 'string'
+        }
+      }
     },
     method: 'POST'
   });
@@ -84,15 +83,15 @@ module.exports = function addWatcherApi(Client, config, components) {
    * @param {Object} params - An object with parameters used to carry out this action
    * @param {String} params.id
    */
-  watcher.getWatch = new ClientAction({
-    params: {
-      id: {
-        type: 'string',
-        required: true
-      }
-    },
+  watcher.getWatch = ca({
+    params: {},
     url: {
-      opt: 0
+      fmt: '/_watcher/watch/<%=id%>',
+      req: {
+        id: {
+          type: 'string'
+        }
+      }
     }
   });
 
@@ -101,11 +100,10 @@ module.exports = function addWatcherApi(Client, config, components) {
    *
    * @param {Object} params - An object with parameters used to carry out this action
    */
-  watcher.info = new ClientAction({
+  watcher.info = ca({
     params: {},
     url: {
-      opt: 0,
-      req: 0
+      fmt: '/_watcher/'
     }
   });
 
@@ -116,19 +114,20 @@ module.exports = function addWatcherApi(Client, config, components) {
    * @param {Duration} params.masterTimeout
    * @param {String} params.id
    */
-  watcher.putWatch = new ClientAction({
+  watcher.putWatch = ca({
     params: {
       masterTimeout: {
         type: 'duration',
         name: 'master_timeout'
-      },
-      id: {
-        type: 'string',
-        required: true
       }
     },
     url: {
-      opt: 0
+      fmt: '/_watcher/watch/<%=id%>',
+      req: {
+        id: {
+          type: 'string'
+        }
+      }
     },
     needBody: true,
     method: 'PUT'
@@ -139,11 +138,10 @@ module.exports = function addWatcherApi(Client, config, components) {
    *
    * @param {Object} params - An object with parameters used to carry out this action
    */
-  watcher.restart = new ClientAction({
+  watcher.restart = ca({
     params: {},
     url: {
-      opt: 0,
-      req: 0
+      fmt: '/_watcher/_restart'
     },
     method: 'PUT'
   });
@@ -153,11 +151,10 @@ module.exports = function addWatcherApi(Client, config, components) {
    *
    * @param {Object} params - An object with parameters used to carry out this action
    */
-  watcher.start = new ClientAction({
+  watcher.start = ca({
     params: {},
     url: {
-      opt: 0,
-      req: 0
+      fmt: '/_watcher/_start'
     },
     method: 'PUT'
   });
@@ -167,11 +164,10 @@ module.exports = function addWatcherApi(Client, config, components) {
    *
    * @param {Object} params - An object with parameters used to carry out this action
    */
-  watcher.stats = new ClientAction({
+  watcher.stats = ca({
     params: {},
     url: {
-      opt: 0,
-      req: 0
+      fmt: '/_watcher/stats'
     }
   });
 
@@ -180,11 +176,10 @@ module.exports = function addWatcherApi(Client, config, components) {
    *
    * @param {Object} params - An object with parameters used to carry out this action
    */
-  watcher.stop = new ClientAction({
+  watcher.stop = ca({
     params: {},
     url: {
-      opt: 0,
-      req: 0
+      fmt: '/_watcher/_stop'
     },
     method: 'PUT'
   });

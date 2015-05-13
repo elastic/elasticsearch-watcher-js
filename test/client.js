@@ -1,12 +1,5 @@
-var VERBOSE = process.env.VERBOSE;
-var JENKINS = !!process.env.JENKINS_HOME;
-
 var es = require('elasticsearch');
-var _ = require('lodash');
-var join = require('path').join;
-var fs = require('fs');
 var Promise = require('bluebird');
-var logFile = join(__dirname, '..', 'elasticsearch-tracer.log');
 
 // current client
 var client = null;
@@ -45,28 +38,7 @@ module.exports = {
       );
     }());
 
-    function doCreateClient(options) {
-      options = options || {};
-
-      var logConfig = {};
-      if (_.has(options, 'logConfig')) {
-        logConfig = options.logConfig;
-      } else {
-        if (JENKINS || !VERBOSE) {
-          logConfig.type = 'stdio';
-        } else {
-          logConfig.type = 'tracer';
-        }
-
-        logConfig.level = JENKINS || VERBOSE ? 'trace' : 'error';
-      }
-
-      if (logConfig && logConfig.type === 'tracer') {
-        try {
-          fs.unlinkSync(logFile);
-        } catch (e) {}
-      }
-
+    function doCreateClient() {
       // close existing client
       if (client) client.close();
 
@@ -79,7 +51,7 @@ module.exports = {
         ],
         plugins: [ require('../src/watcher') ],
         pingTimeout: 5000,
-        log: logConfig
+        log: 'trace'
       });
 
       client.clearEs = function () {

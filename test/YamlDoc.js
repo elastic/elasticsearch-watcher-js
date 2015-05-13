@@ -204,8 +204,7 @@ YamlDoc.prototype = {
    * @return {*} - The value requested, or undefined if it was not found
    */
   get: function (path, from) {
-
-    var log = process.env.LOG_GETS && !from ? console.log.bind(console) : function () {};
+    var log = process.env.LOG_GETS ? console.log.bind(console) : function () {};
     var i;
 
     if (path === '$body') {
@@ -213,7 +212,9 @@ YamlDoc.prototype = {
       return this._last_requests_response;
     }
 
+    log('getting', path);
     if (!from) {
+      log('from', from);
       if (path[0] === '$') {
         from = this._stash;
         path = path.substring(1);
@@ -221,8 +222,6 @@ YamlDoc.prototype = {
         from = this._last_requests_response;
       }
     }
-
-    log('getting', path, 'from', from);
 
     var steps = _.map(path ? path.replace(/\\\./g, '\uffff').split('.') : [], function (step) {
       return step.replace(/\uffff/g, '.');
@@ -292,8 +291,12 @@ YamlDoc.prototype = {
    * @return {[type]}        [description]
    */
   do_do: function (args) {
-    var catcher;
+    var client = clientManager.get();
+    var action = _.keys(args).pop();
+    var clientActionName = _.map(action.split('.'), camelCase).join('.');
+    var clientAction = this.get(clientActionName, client);
 
+    var catcher;
     // resolve the catch arg to a value used for matching once the request is complete
     switch (args.catch) {
     case void 0:
@@ -322,11 +325,6 @@ YamlDoc.prototype = {
     }
 
     delete args.catch;
-
-    var client = clientManager.get();
-    var action = _.keys(args).pop();
-    var clientActionName = _.map(action.split('.'), camelCase).join('.');
-    var clientAction = this.get(clientActionName, client);
 
     var params = _.transform(args[action], function (params, val, name) {
       var camelName = camelCase(name);
