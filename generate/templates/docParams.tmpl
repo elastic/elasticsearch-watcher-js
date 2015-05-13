@@ -3,11 +3,12 @@
 [horizontal]
 <%
 
-_.each(params, function (param, paramName) {
+Object.keys(params).sort().forEach(function (name) {
+  var param = params[name];
+
   print('`' + param.nameWithDefault + '`::\n');
-  if (param.description) {
-    print('`' + param.type + '` -- ' + joinParagraphs(param.description) + '\n');
-  }
+  print('`' + param.type + '` -- ' + joinParagraphs(param.description || '') + '\n');
+
   if (param.options) {
     print('Options:::\n');
     _.each(param.options, function (opt) {

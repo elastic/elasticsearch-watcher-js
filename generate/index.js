@@ -28,7 +28,6 @@ var methods = glob
 glob.sync(join(tmplDir, '*.tmpl')).forEach(function (filename) {
   var file = relative(tmplDir, filename);
   var name = file.replace(/\.tmpl/, 'Tmpl');
-  console.log('creating ' + name + ' from ' + file);
   var tmpl;
   imports[name] = function (locals) {
     tmpl || (tmpl = _.template(read(filename), { sourceURL: filename, imports: imports }));

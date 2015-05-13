@@ -8,21 +8,22 @@ module.exports = function addWatcherApi(Client, config, components) {
    * Perform a [watcher.ackWatch](http://www.elastic.co/guide/en/watcher/current/appendix-api-ack-watch.html) request
    *
    * @param {Object} params - An object with parameters used to carry out this action
-   * @param {Duration} params.masterTimeout
-   * @param {String} params.id
+   * @param {Duration} params.masterTimeout - Specify timeout for watch write operation
+   * @param {String} params.id - Watch ID
    */
   watcher.ackWatch = ca({
     params: {
       masterTimeout: {
-        type: 'duration',
-        name: 'master_timeout'
+        name: 'master_timeout',
+        type: 'duration'
       }
     },
     url: {
       fmt: '/_watcher/watch/<%=id%>/_ack',
       req: {
         id: {
-          type: 'string'
+          type: 'string',
+          required: true
         }
       }
     },
@@ -33,15 +34,15 @@ module.exports = function addWatcherApi(Client, config, components) {
    * Perform a [watcher.deleteWatch](http://www.elastic.co/guide/en/watcher/current/appendix-api-delete-watch.html) request
    *
    * @param {Object} params - An object with parameters used to carry out this action
-   * @param {Duration} params.masterTimeout
-   * @param {Boolean} params.force
-   * @param {String} params.id
+   * @param {Duration} params.masterTimeout - Specify timeout for watch write operation
+   * @param {Boolean} params.force - Specify if this request should be forced and ignore locks
+   * @param {String} params.id - Watch ID
    */
   watcher.deleteWatch = ca({
     params: {
       masterTimeout: {
-        type: 'duration',
-        name: 'master_timeout'
+        name: 'master_timeout',
+        type: 'duration'
       },
       force: {
         type: 'boolean'
@@ -51,7 +52,8 @@ module.exports = function addWatcherApi(Client, config, components) {
       fmt: '/_watcher/watch/<%=id%>',
       req: {
         id: {
-          type: 'string'
+          type: 'string',
+          required: true
         }
       }
     },
@@ -62,7 +64,7 @@ module.exports = function addWatcherApi(Client, config, components) {
    * Perform a [watcher.executeWatch](http://www.elastic.co/guide/en/watcher/current/appendix-api-execute-watch.html) request
    *
    * @param {Object} params - An object with parameters used to carry out this action
-   * @param {String} params.id
+   * @param {String} params.id - Watch ID
    */
   watcher.executeWatch = ca({
     params: {},
@@ -70,7 +72,8 @@ module.exports = function addWatcherApi(Client, config, components) {
       fmt: '/_watcher/watch/<%=id%>/_execute',
       req: {
         id: {
-          type: 'string'
+          type: 'string',
+          required: true
         }
       }
     },
@@ -81,7 +84,7 @@ module.exports = function addWatcherApi(Client, config, components) {
    * Perform a [watcher.getWatch](http://www.elastic.co/guide/en/watcher/current/appendix-api-get-watch.html) request
    *
    * @param {Object} params - An object with parameters used to carry out this action
-   * @param {String} params.id
+   * @param {String} params.id - Watch ID
    */
   watcher.getWatch = ca({
     params: {},
@@ -89,7 +92,8 @@ module.exports = function addWatcherApi(Client, config, components) {
       fmt: '/_watcher/watch/<%=id%>',
       req: {
         id: {
-          type: 'string'
+          type: 'string',
+          required: true
         }
       }
     }
@@ -111,21 +115,22 @@ module.exports = function addWatcherApi(Client, config, components) {
    * Perform a [watcher.putWatch](http://www.elastic.co/guide/en/watcher/current/appendix-api-put-watch.html) request
    *
    * @param {Object} params - An object with parameters used to carry out this action
-   * @param {Duration} params.masterTimeout
-   * @param {String} params.id
+   * @param {Duration} params.masterTimeout - Specify timeout for watch write operation
+   * @param {String} params.id - Watch ID
    */
   watcher.putWatch = ca({
     params: {
       masterTimeout: {
-        type: 'duration',
-        name: 'master_timeout'
+        name: 'master_timeout',
+        type: 'duration'
       }
     },
     url: {
       fmt: '/_watcher/watch/<%=id%>',
       req: {
         id: {
-          type: 'string'
+          type: 'string',
+          required: true
         }
       }
     },

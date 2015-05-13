@@ -1,16 +1,8 @@
 var _ = require('lodash');
 var camelCase = require('camelcase');
+var ParamList = require('./ParamList');
 
 var urlParamRE = /\{(\w+)\}/g;
-
-function ParamList(vals) {
-  var self = this;
-  _.forOwn(vals, function (param, oldKey) {
-    var name = camelCase(oldKey);
-    if (name !== oldKey) param.name = oldKey;
-    self[name] = _.pick(param, 'type', 'default', 'options', 'required', 'name');
-  });
-}
 
 function Method(name, props) {
   this.name = _.map(name.split('.'), camelCase).join('.');

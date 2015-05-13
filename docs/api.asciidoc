@@ -12,6 +12,8 @@
 * <<api-watcher-start,watcher.start>>
 * <<api-watcher-stats,watcher.stats>>
 * <<api-watcher-stop,watcher.stop>>
+
+
 [[api-watcher-ack_watch]]
 === `watcher.ackWatch`
 
@@ -29,12 +31,15 @@ The default method is `POST` and the usual <<api-conventions,params and return v
 ==== Params
 
 [horizontal]
-`undefined`::
-`undefined`::
+`id`::
+`string` -- Watch ID
+`masterTimeout`::
+`duration` -- Specify timeout for watch write operation
 
 
 
 link:#[back to top]
+
 
 [[api-watcher-delete_watch]]
 === `watcher.deleteWatch`
@@ -53,13 +58,17 @@ The default method is `DELETE` and the usual <<api-conventions,params and return
 ==== Params
 
 [horizontal]
-`undefined`::
-`undefined`::
-`undefined`::
+`force`::
+`boolean` -- Specify if this request should be forced and ignore locks
+`id`::
+`string` -- Watch ID
+`masterTimeout`::
+`duration` -- Specify timeout for watch write operation
 
 
 
 link:#[back to top]
+
 
 [[api-watcher-execute_watch]]
 === `watcher.executeWatch`
@@ -78,11 +87,13 @@ The default method is `POST` and the usual <<api-conventions,params and return v
 ==== Params
 
 [horizontal]
-`undefined`::
+`id`::
+`string` -- Watch ID
 
 
 
 link:#[back to top]
+
 
 [[api-watcher-get_watch]]
 === `watcher.getWatch`
@@ -101,11 +112,13 @@ The default method is `GET` and the usual <<api-conventions,params and return va
 ==== Params
 
 [horizontal]
-`undefined`::
+`id`::
+`string` -- Watch ID
 
 
 
 link:#[back to top]
+
 
 [[api-watcher-info]]
 === `watcher.info`
@@ -129,6 +142,7 @@ The default method is `GET` and the usual <<api-conventions,params and return va
 
 link:#[back to top]
 
+
 [[api-watcher-put_watch]]
 === `watcher.putWatch`
 
@@ -146,12 +160,15 @@ The default method is `PUT` and the usual <<api-conventions,params and return va
 ==== Params
 
 [horizontal]
-`undefined`::
-`undefined`::
+`id`::
+`string` -- Watch ID
+`masterTimeout`::
+`duration` -- Specify timeout for watch write operation
 
 
 
 link:#[back to top]
+
 
 [[api-watcher-restart]]
 === `watcher.restart`
@@ -175,6 +192,7 @@ The default method is `PUT` and the usual <<api-conventions,params and return va
 
 link:#[back to top]
 
+
 [[api-watcher-start]]
 === `watcher.start`
 
@@ -197,6 +215,7 @@ The default method is `PUT` and the usual <<api-conventions,params and return va
 
 link:#[back to top]
 
+
 [[api-watcher-stats]]
 === `watcher.stats`
 
@@ -218,6 +237,7 @@ The default method is `GET` and the usual <<api-conventions,params and return va
 
 
 link:#[back to top]
+
 
 [[api-watcher-stop]]
 === `watcher.stop`
