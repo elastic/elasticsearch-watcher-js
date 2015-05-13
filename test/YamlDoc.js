@@ -11,7 +11,8 @@ var _ = require('lodash');
 var Promise = require('bluebird');
 var expect = require('expect.js');
 var camelCase = require('camelcase');
-var clientManager = require('./client');
+var client = require('./client');
+var Catcher = require('./Catcher');
 var inspect = require('util').inspect;
 
 var implementedFeatures = ['gtelte', 'regex', 'benchmark'];
@@ -42,7 +43,7 @@ var versionRangeRE = new RegExp('^(?:' + versionExp + ')\\s*\\-\\s*(?:' + versio
  * @param done {Function} - callback
  */
 function getVersionFromES() {
-  return clientManager
+  return client
   .get()
   .info({})
   .then(function (resp) {
@@ -291,39 +292,12 @@ YamlDoc.prototype = {
    * @return {[type]}        [description]
    */
   do_do: function (args) {
-    var client = clientManager.get();
+    var self = this;
     var action = _.keys(args).pop();
     var clientActionName = _.map(action.split('.'), camelCase).join('.');
-    var clientAction = this.get(clientActionName, client);
+    var clientAction = this.get(clientActionName, client.get());
 
-    var catcher;
-    // resolve the catch arg to a value used for matching once the request is complete
-    switch (args.catch) {
-    case void 0:
-      catcher = null;
-      break;
-    case 'missing':
-      catcher = 404;
-      break;
-    case 'conflict':
-      catcher = 409;
-      break;
-    case 'forbidden':
-      catcher = 403;
-      break;
-    case 'request':
-      catcher = /.*/;
-      break;
-    case 'param':
-      catcher = TypeError;
-      break;
-    default:
-      catcher = args.catch.match(/^\/(.*)\/$/);
-      if (catcher) {
-        catcher = new RegExp(catcher[1]);
-      }
-    }
-
+    var catcher = new Catcher(args.catch);
     delete args.catch;
 
     var params = _.transform(args[action], function (params, val, name) {
@@ -369,17 +343,14 @@ YamlDoc.prototype = {
       params[paramName] = val;
     }, {}, this);
 
-    expect(clientAction || clientActionName).to.be.a('function');
-
-    // convert error code catchers into ignore params
-    if (String(catcher).match(/^[0-9]+(\.[0-9]+)$/)) {
-      params.ignore = _.union(params.ignore || [], [catcher]);
-      catcher = null;
+    if (catcher.status) {
+      params.ignore = (params.ignore || []).concat(catcher.status);
     }
 
+    expect(clientAction || clientActionName).to.be.a('function');
+
     return new Promise(function (resolve, reject) {
-      var self = this;
-      var req = clientAction.call(client, params);
+      var req = clientAction.call(client.get(), params);
 
       var timeoutId = setTimeout(function () {
         // request timed out, so we will skip the rest of the tests and continue
@@ -397,21 +368,20 @@ YamlDoc.prototype = {
         self._last_requests_response = resp;
       })
       .catch(function (err) {
-        if (catcher instanceof RegExp) {
+        if (catcher.regexp) {
           // error message should match the regexp
-          expect(err.message).to.match(catcher);
-          return;
+          expect(err.message).to.match(catcher.regexp);
         }
 
-        if (typeof catcher === 'function') {
+        else if (catcher.type) {
           // error should be an instance of
-          expect(err).to.be.a(catcher);
-          return;
+          expect(err).to.be.a(catcher.type);
         }
 
-        if (catcher) throw new Error('Invalid catcher ' + catcher);
+        else {
+          throw err;
+        }
 
-        throw err;
       })
       .then(resolve, reject);
 

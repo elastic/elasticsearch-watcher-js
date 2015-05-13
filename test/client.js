@@ -16,7 +16,7 @@ module.exports = {
       })
       .then(
         function (resp) {
-          if (resp.name !== 'elasticsearch_js_test_runner') {
+          if (resp.name !== 'esjs-watcher-test-runner') {
             throw new Error('Almosted wiped out another es node. Shut-down all instances of ES and try again.');
           }
 

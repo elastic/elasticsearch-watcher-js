@@ -18,26 +18,28 @@ function YamlFile(filename, docs) {
   file.skipping = false;
 
   describe(filename, function () {
-    file.docs = _.map(docs, function (doc) {
-      doc =  new YamlDoc(doc, file);
-      if (doc.description === 'setup') {
-        beforeEach(function () {
-          return Promise.resolve(_.pluck(doc._actions, 'testable')).each(function (action) {
-            return Promise.try(action);
-          });
-        });
-      } else {
-        it(doc.description, function () {
-          return Promise.resolve(_.pluck(doc._actions, 'testable')).each(function (action) {
-            return Promise.try(action);
-          });
-        });
-      }
+    beforeEach(function () {
+      return client.get().watcher.start();
     });
 
-    afterEach(/* doc */function () {
+    file.docs = _.map(docs, function (doc) {
+      doc =  new YamlDoc(doc, file);
+      if (doc.description === 'setup') beforeEach(runDoc(doc));
+      else it(doc.description, runDoc(doc));
+    });
+
+    afterEach(function () {
       return client.get().clearEs();
     });
   });
 
+}
+
+function runDoc(doc) {
+  return function docRunner() {
+    var steps = _.pluck(doc._actions, 'testable');
+    return Promise.resolve(steps).each(function (step) {
+      return Promise.try(step);
+    });
+  };
 }
