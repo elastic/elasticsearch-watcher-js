@@ -1,6 +1,6 @@
 {
   "name": "elasticsearch-watcher",
-  "version": "1.0.1",
+  "version": "1.0.2-SNAPSHOT",
   "main": "elasticsearch-watcher.js",
   "ignore": [
     "*",
