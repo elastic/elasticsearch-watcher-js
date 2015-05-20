@@ -1,0 +1,3 @@
+*
+!docs/*.asciidoc
+!elasticsearch-watcher.js
