@@ -24,7 +24,7 @@ bower install elasticsearch elasticsearch-watcher
 
 Or by simply downloading [elasticsearch-watcher.js](elasticsearch-watcher.js) and including it in your project.
 
-**NOTE:** The elasticsearch-watcher.js file uses a UMD wrapper to greater compatibility and exports a global `ElasticsearchWatcher` variable when either AMD or Common.js module systems are detected.
+**NOTE:** The elasticsearch-watcher.js file uses a UMD wrapper to greater compatibility and exports a global `ElasticsearchWatcher` variable when neither AMD or Common.js module systems are detected.
 
 ## Usage
 
