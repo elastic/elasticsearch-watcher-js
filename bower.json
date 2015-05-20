@@ -3,12 +3,7 @@
   "version": "1.0.0",
   "main": "elasticsearch-watcher.js",
   "ignore": [
-    "docs/**/*",
-    "generate/**/*",
-    "test/**/*",
-    ".*",
-    "**/*.md",
-    "Gruntfile.js",
-    "package.json"
+    "*",
+    "!elasticsearch-watcher.js"
   ]
 }
