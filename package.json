@@ -13,6 +13,10 @@
     "node": ">=0.8 <=0.12",
     "iojs": ">=1.5"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/elastic/elasticsearch-watcher-js.git"
+  },
   "devDependencies": {
     "bluebird": "^2.9.25",
     "camelcase": "^1.0.2",
