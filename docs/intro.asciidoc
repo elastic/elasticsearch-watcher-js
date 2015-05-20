@@ -1,0 +1,21 @@
+[[intro]]
+== Intro
+
+elasticsearch-watcher.js is a plugin for the {esjs}[elasticsearch.js client] that adds APIs for using Elasticsearch Watcher from JavaScript. It is compatible with elasticsearch.js version 4.1.0 and greater.
+
+[[install]]
+=== Install
+
+elasticsearch-watcher.js can downloading from the https://github.com/elastic/elasticsearch-watcher-js/blob/master/elasticsearch-watcher.js(github repository) or installed using npm or bower.
+
+.Using https://www.npmjs.com/(npm)
+[source,shell]
+--------
+npm install --save elasticsearch-watcher
+--------
+
+.Using http://bower.io(bower)
+[source,shell]
+--------
+bower install --save elasticsearch-watcher
+--------

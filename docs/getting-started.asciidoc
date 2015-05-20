@@ -1,0 +1,198 @@
+[[getting-started]]
+== Getting Started
+
+Once you have <<install,installed>> the elasticsearch-watcher plugin you can include it in your client using the
+{esjs}/configuration.html#config-plugins[plugins config].
+
+[source,js]
+--------
+var elasticsearch = require('elasticsearch');
+
+var client = new elasticsearch.Client({
+  host: 'localhost:9200',
+  plugins: [
+    require('elasticsearch-watcher')
+  ]
+});
+--------
+
+Now, this client instance will have the <<api,watcher api>>.
+
+.Complex usage example
+[source,js]
+--------
+Promise.resolve()
+.then(function () {
+  // Delete the Watcher and test indices
+
+  return client.indices.delete({
+    index: ['alerts', 'test', '.watches', '.watch_history*'],
+    ignore: 404
+  });
+})
+.then(function () {
+  // Print information about the Watcher plugin
+
+  return client.watcher.info()
+  .then(function (resp) {
+    console.log(`Watcher version ${resp.version.number} installed`);
+  });
+})
+.then(function () {
+  // register a new watch
+
+  return client.watcher.putWatch({
+    id: 'error_500',
+    body: {
+      // Label the watch
+      metadata: { tags: ['errors'] },
+
+      // Run the watch every 10 seconds
+      trigger: { schedule: { interval: '10s' } },
+
+      // Search for at least 3 documents matching the condition
+      condition: { script: { inline: 'ctx.payload.hits.total > 3' } },
+
+      // Throttle the watch execution for 30 seconds
+      throttle_period: '30s',
+
+      // The search request to execute
+      input: {
+        search: {
+          request: {
+            indices: ['test'],
+            body: {
+              query: {
+                filtered: {
+                  query: { match: { status: 500 } },
+                  filter: {
+                    range: {
+                      timestamp: {
+                        from: '{{ctx.trigger.scheduled_time}}||-5m',
+                        to: '{{ctx.trigger.triggered_time}}'
+                      }
+                    }
+                  }
+                }
+              },
+
+              // Return statistics about different hosts
+              aggregations: {
+                hosts: { terms: { field: 'host' } }
+              }
+            }
+          }
+        }
+      },
+
+      // The actions to perform
+      actions: {
+        send_email: {
+          transform: {
+            // Transform the data for the template
+            script: `
+              return [
+                total: ctx.payload.hits.total,
+                hosts: ctx.payload.aggregations.hosts.buckets.collect {
+                  [ host: it.key, errors: it.doc_count ]
+                },
+                errors: ctx.payload.hits.hits.collect { it._source }
+              ];
+            `
+          },
+          email: {
+            to: 'alerts@example.com',
+            subject: '[ALERT] {{ctx.watch_id}}',
+            body: `
+              Received {{ctx.payload.total}} error documents in the last 5 minutes.
+
+              Hosts:
+              {{#ctx.payload.hosts}}
+                * {{host}} ({{errors}})
+              {{/ctx.payload.hosts}}
+            `,
+            attach_data: true
+          }
+        },
+        index_payload: {
+          // Transform the data to be stored
+          transform: {
+            script: 'return [ watch_id: ctx.watch_id, payload: ctx.payload ]'
+          },
+          index: {
+            index: 'alerts',
+            doc_type: 'alert'
+          }
+        },
+        ping_webhook: {
+          webhook: {
+            method: 'POST',
+            host:   'localhost',
+            port:   4567,
+            path:   '/',
+            body:   '{"watch_id" : "{{ctx.watch_id}}", "payload" : "{{ctx.payload}}"}'
+          }
+        }
+      }
+    }
+  });
+})
+.then(function () {
+  // Index documents to trigger the watch
+
+  var count = 0;
+  return (function indexDoc() {
+    count = count + 1;
+
+    return client.index({
+      index: 'test',
+      type: 'd',
+      body: {
+        timestamp: new Date(),
+        status: 500,
+        host: `10.0.0.${count}`
+      }
+    })
+    .then(function () {
+      if (count < 5) return indexDoc();
+    });
+
+  }());
+})
+.then(function () {
+  // Wait a bit...
+  console.log('Waiting 30 seconds for watchers to fire...');
+
+  return new Promise(function (resolve) {
+    setTimeout(resolve, 30000);
+  });
+})
+.then(function () {
+  // display information about watch execution
+
+  return client.search({
+    index: '.watch_history*',
+    q: 'watch_id:error_500',
+    sort: 'trigger_event.schedule.triggered_time:asc'
+  })
+  .then(function (resp) {
+    console.log(`\n${ "=".repeat(25) }`);
+    resp.hits.hits.forEach(function (hit) {
+      console.log(`${hit._id} : ${hit._source.state}`);
+    });
+    console.log('');
+  });
+})
+.then(function () {
+  // Delete the watch
+
+  return client.watcher.deleteWatch({
+    id: 'error_500',
+    masterTimeout: '30s',
+    force: true
+  });
+})
+.catch(function (err) {
+  console.error(`\n${ "!".repeat(25) }\n${err.stack}\n`);
+});
+--------

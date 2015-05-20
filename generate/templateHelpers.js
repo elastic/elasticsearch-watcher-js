@@ -2,6 +2,8 @@ var _ = require('lodash');
 var fs = require('fs');
 var join = require('path').join;
 
+var docsDir = join(__dirname, '..', 'docs');
+
 /**
  * we want strings in code to use single-quotes, so this will JSON encode vars, but then
  * modify them to follow our code standards.
@@ -32,6 +34,20 @@ function ucfirst(str) {
   return str.charAt(0).toUpperCase() + str.substr(1).toLowerCase();
 }
 
+function getPartial(name) {
+  return function (action) {
+    try {
+      return fs.readFileSync(join(docsDir, '_' + name + 's', action + '.asciidoc'), 'utf8').trim();
+    } catch (e) {
+      if (~e.message.indexOf('ENOENT')) {
+        return '// no ' + name;
+      } else {
+        throw e;
+      }
+    }
+  };
+}
+
 /**
  * These keys will be available as local variables to each template
  * @type {Object}
@@ -53,29 +69,8 @@ module.exports = {
     return block.split('\n\n').join('\n+\n');
   },
 
-  description: function (action) {
-    try {
-      return fs.readFileSync(join(__dirname, '../../../docs/_descriptions/' + action + '.asciidoc'));
-    } catch (e) {
-      if (~e.message.indexOf('ENOENT')) {
-        return '// no description';
-      } else {
-        throw e;
-      }
-    }
-  },
-
-  examples: function (action) {
-    try {
-      return fs.readFileSync(join(__dirname, '../../../docs/_examples/' + action + '.asciidoc'));
-    } catch (e) {
-      if (~e.message.indexOf('ENOENT')) {
-        return '// no examples';
-      } else {
-        throw e;
-      }
-    }
-  },
+  description: getPartial('description'),
+  examples: getPartial('example'),
 
   paramType: function (type) {
     switch (type && type.toLowerCase ? type.toLowerCase() : 'any') {

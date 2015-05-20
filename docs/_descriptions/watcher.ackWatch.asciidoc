@@ -1,0 +1,1 @@
+Throttle the execution of the watch by acknowledging it

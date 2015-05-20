@@ -47,6 +47,10 @@ client.watcher.getWatch({ id: 42 })
 });
 ```
 
+## API
+
+Documentation for the watcher api is available at [elastic/elasticsearch-watcher-js/docs/api.asciidoc](https://github.com/elastic/elasticsearch-watcher-js/blob/master/docs/api.asciidoc) for the time being.
+
 ## License
 
 Copyright 2015 Elasticsearch

@@ -19,14 +19,14 @@
 
 [source,js]
 --------
-client.watcher.watcher.ackWatch([params, [callback]])
+client.watcher.ackWatch([params, [callback]])
 --------
 
-// no description
+Throttle the execution of the watch by acknowledging it
 
 The default method is `POST` and the usual <<api-conventions,params and return values>> apply. See http://www.elastic.co/guide/en/watcher/current/appendix-api-ack-watch.html[the elasticsearch docs] for more about this method.
 
-// no examples
+// no example
 
 ==== Params
 
@@ -46,14 +46,14 @@ link:#[back to top]
 
 [source,js]
 --------
-client.watcher.watcher.deleteWatch([params, [callback]])
+client.watcher.deleteWatch([params, [callback]])
 --------
 
-// no description
+Delete a specific watch
 
 The default method is `DELETE` and the usual <<api-conventions,params and return values>> apply. See http://www.elastic.co/guide/en/watcher/current/appendix-api-delete-watch.html[the elasticsearch docs] for more about this method.
 
-// no examples
+// no example
 
 ==== Params
 
@@ -75,14 +75,14 @@ link:#[back to top]
 
 [source,js]
 --------
-client.watcher.watcher.executeWatch([params, [callback]])
+client.watcher.executeWatch([params, [callback]])
 --------
 
-// no description
+Force the execution of the watch actions (eg. for testing)
 
 The default method is `POST` and the usual <<api-conventions,params and return values>> apply. See http://www.elastic.co/guide/en/watcher/current/appendix-api-execute-watch.html[the elasticsearch docs] for more about this method.
 
-// no examples
+// no example
 
 ==== Params
 
@@ -100,14 +100,14 @@ link:#[back to top]
 
 [source,js]
 --------
-client.watcher.watcher.getWatch([params, [callback]])
+client.watcher.getWatch([params, [callback]])
 --------
 
-// no description
+Get a specific watch
 
 The default method is `GET` and the usual <<api-conventions,params and return values>> apply. See http://www.elastic.co/guide/en/watcher/current/appendix-api-get-watch.html[the elasticsearch docs] for more about this method.
 
-// no examples
+// no example
 
 ==== Params
 
@@ -125,14 +125,14 @@ link:#[back to top]
 
 [source,js]
 --------
-client.watcher.watcher.info([params, [callback]])
+client.watcher.info([params, [callback]])
 --------
 
-// no description
+Return information about the installed Watcher plugin
 
 The default method is `GET` and the usual <<api-conventions,params and return values>> apply. See http://www.elastic.co/guide/en/watcher/current/appendix-api-info.html[the elasticsearch docs] for more about this method.
 
-// no examples
+// no example
 
 ==== Params
 
@@ -148,14 +148,14 @@ link:#[back to top]
 
 [source,js]
 --------
-client.watcher.watcher.putWatch([params, [callback]])
+client.watcher.putWatch([params, [callback]])
 --------
 
-// no description
+Create a new watch or update an existing one
 
 The default method is `PUT` and the usual <<api-conventions,params and return values>> apply. See http://www.elastic.co/guide/en/watcher/current/appendix-api-put-watch.html[the elasticsearch docs] for more about this method.
 
-// no examples
+// no example
 
 ==== Params
 
@@ -175,14 +175,14 @@ link:#[back to top]
 
 [source,js]
 --------
-client.watcher.watcher.restart([params, [callback]])
+client.watcher.restart([params, [callback]])
 --------
 
-// no description
+Restart the watcher service
 
 The default method is `PUT` and the usual <<api-conventions,params and return values>> apply. See http://www.elastic.co/guide/en/watcher/current/appendix-api-service.html[the elasticsearch docs] for more about this method.
 
-// no examples
+// no example
 
 ==== Params
 
@@ -198,14 +198,14 @@ link:#[back to top]
 
 [source,js]
 --------
-client.watcher.watcher.start([params, [callback]])
+client.watcher.start([params, [callback]])
 --------
 
-// no description
+Start the watcher service
 
 The default method is `PUT` and the usual <<api-conventions,params and return values>> apply. See http://www.elastic.co/guide/en/watcher/current/appendix-api-service.html[the elasticsearch docs] for more about this method.
 
-// no examples
+// no example
 
 ==== Params
 
@@ -221,14 +221,14 @@ link:#[back to top]
 
 [source,js]
 --------
-client.watcher.watcher.stats([params, [callback]])
+client.watcher.stats([params, [callback]])
 --------
 
-// no description
+Return statistical information about the watcher service
 
 The default method is `GET` and the usual <<api-conventions,params and return values>> apply. See http://www.elastic.co/guide/en/watcher/current/appendix-api-stats.html[the elasticsearch docs] for more about this method.
 
-// no examples
+// no example
 
 ==== Params
 
@@ -244,14 +244,14 @@ link:#[back to top]
 
 [source,js]
 --------
-client.watcher.watcher.stop([params, [callback]])
+client.watcher.stop([params, [callback]])
 --------
 
-// no description
+Stop the watcher service
 
 The default method is `PUT` and the usual <<api-conventions,params and return values>> apply. See http://www.elastic.co/guide/en/watcher/current/appendix-api-service.html[the elasticsearch docs] for more about this method.
 
-// no examples
+// no example
 
 ==== Params
 

@@ -1,0 +1,7 @@
+:esjs: https://www.elastic.co/guide/en/elasticsearch/client/javascript-api/current
+
+include::intro.asciidoc[]
+
+include::getting-started.asciidoc[]
+
+include::api.asciidoc[]
