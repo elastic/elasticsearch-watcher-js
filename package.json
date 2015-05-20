@@ -6,7 +6,7 @@
   "name": "elasticsearch-watcher",
   "description": "Watcher API plugin for the JavaScript elasticsearch client",
   "main": "elasticsearch-watcher.js",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "license": "Apache 2.0",
   "dependencies": {},
   "engines": {
