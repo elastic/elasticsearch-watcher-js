@@ -1,3 +1,12 @@
+# Deprecated
+
+*April 18, 2017*
+The watcher plugin has been replaced with X-Pack for some time and while there is no official X-Pack plugin for [elasticsearch.js](https://github.com/elastic/elasticsearch-js) we will not be working on the elasticsearch-watcher module any more.
+
+For people trying to integrate with X-Pack via the client, consider using the [`client.transport.request()` method](https://www.elastic.co/guide/en/elasticsearch/client/javascript-api/current/transport-reference.html#_request_params_callback) to specify the properties of the request you are trying to make.
+
+---
+
 # elasticsearch-watcher
 
 Watcher API plugin for the [elasticsearch.js](https://github.com/elastic/elasticsearch-js) client.
